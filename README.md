@@ -18,7 +18,6 @@ seq2hla/
 ├── inputs/
 │   └── inputs.json           # Input template (GCS paths)
 ├── tools/                    # Empty
-├── REFERENCE.md              # This file
 ├── README.md
 └── LICENSE
 ```
@@ -118,56 +117,20 @@ Output: mhc_with_mates.bam + .bam.bai
 
 ---
 
-## Known Bugs & Compatibility Issues
-
-### Critical (will cause failure)
-
-**1. Import filename mismatch — `workflows/main.wdl:3`**
-
-```wdl
-import "../tasks/mhc_with_mates.wdl" as mhc  # file does not exist
-```
-
-Actual file is `tasks/cram_to_mhcbam.wdl`. Cromwell will fail to resolve the import.
-
-**2. Output filename mismatch — `tasks/cram_to_mhcbam.wdl:27,73-74`**
-
-```bash
-SAMPLE=$(basename "sample.cram" | sed 's/\.cram$//')
-# SAMPLE is always "sample" — literal string, not the input filename
-```
-
-Command always produces `sample.mhc_with_mates.bam`, but output declarations use:
-
-```wdl
-File bam = "${basename(cram, '.cram')}.mhc_with_mates.bam"
-# expects e.g. "NA12878.mhc_with_mates.bam" for input NA12878.cram
-```
-
-If the input CRAM is not named `sample.cram`, Cromwell will throw a missing output error.
+## Compatibility Notes
 
 ### Terra-Specific
 
-**3. Relative imports require ZIP upload**
+**Relative imports require ZIP upload**
 
 Relative imports (`../tasks/...`) are only supported when the workflow is uploaded to Terra as a ZIP archive preserving the directory structure. Uploading `main.wdl` alone will fail.
 
 ### Warnings
 
-**4. `samtools idxstats` without `-T` — `tasks/cram_to_mhcbam.wdl:31`**
+**`samtools idxstats` without `-T` — `tasks/cram_to_mhcbam.wdl:31`**
 
 Reference is not passed to `samtools idxstats`. Works if the CRAM embeds a reference URI, but fragile for CRAMs that require explicit reference specification.
 
-**5. `-f 12` notation — `tasks/cram_to_mhcbam.wdl:50`**
+**`-f 12` notation — `tasks/cram_to_mhcbam.wdl:50`**
 
 Functionally correct (`0x4 | 0x8 = 12`), but `-f 0xC` is the conventional hex notation for samtools flag filtering.
-
-### Summary Table
-
-| Issue | Severity | Location |
-|---|---|---|
-| Import references non-existent filename | Critical | `main.wdl:3` |
-| Output filename always `sample.*` | Critical | `cram_to_mhcbam.wdl:27,73-74` |
-| Relative imports need ZIP upload on Terra | Terra-specific | `main.wdl:3` |
-| `samtools idxstats` missing `-T ref.fa` | Warning | `cram_to_mhcbam.wdl:31` |
-| `-f 12` vs `-f 0xC` (cosmetic) | Minor | `cram_to_mhcbam.wdl:50` |
