@@ -1,0 +1,9 @@
+version: 1.2
+workflows:
+  - name: seq2hla
+    subclass: WDL
+    primaryDescriptorPath: /workflows/main.wdl
+    testParameterFiles:
+      - /inputs/inputs.json
+    readMePath: /README.md
+    topic: WDL workflow for extracting MHC/HLA reads from whole-genome CRAM files
