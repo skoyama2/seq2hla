@@ -124,13 +124,3 @@ Output: mhc_with_mates.bam + .bam.bai
 **Relative imports require ZIP upload**
 
 Relative imports (`../tasks/...`) are only supported when the workflow is uploaded to Terra as a ZIP archive preserving the directory structure. Uploading `main.wdl` alone will fail.
-
-### Warnings
-
-**`samtools idxstats` without `-T` — `tasks/cram_to_mhcbam.wdl:31`**
-
-Reference is not passed to `samtools idxstats`. Works if the CRAM embeds a reference URI, but fragile for CRAMs that require explicit reference specification.
-
-**`-f 12` notation — `tasks/cram_to_mhcbam.wdl:50`**
-
-Functionally correct (`0x4 | 0x8 = 12`), but `-f 0xC` is the conventional hex notation for samtools flag filtering.
