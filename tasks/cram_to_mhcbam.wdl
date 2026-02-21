@@ -70,8 +70,8 @@ task extract_mhc_with_mates {
   >>>
 
   output {
-    File bam = "${basename(cram, '.cram')}.mhc_with_mates.bam"
-    File bai = "${basename(cram, '.cram')}.mhc_with_mates.bam.bai"
+    File bam = basename(cram, ".cram") + ".mhc_with_mates.bam"
+    File bai = basename(cram, ".cram") + ".mhc_with_mates.bam.bai"
   }
 
   runtime {

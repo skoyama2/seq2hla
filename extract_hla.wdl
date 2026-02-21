@@ -1,6 +1,6 @@
 version 1.0
 
-import "../tasks/cram_to_mhcbam.wdl" as mhc
+import "tasks/cram_to_mhcbam.wdl" as mhc
 
 workflow main {
   input {
