@@ -17,27 +17,20 @@ task extract_mhc_with_mates {
   command <<<
     set -euo pipefail
 
-    ln -sf "~{cram}"  sample.cram
-    ln -sf "~{crai}"  sample.cram.crai
-
-    ln -sf "~{ref_fasta}"     ref.fa
-    ln -sf "~{ref_fasta_fai}" ref.fa.fai
-    ln -sf "~{ref_dict}"      ref.dict
-
     SAMPLE=$(basename "~{cram}" | sed 's/\.cram$//')
 
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
 
-    samtools idxstats sample.cram \
+    samtools idxstats "~{cram}" \
       | awk '$3>0 && ($1 ~ /^chr6_.*_alt$/ || $1 ~ /^6_.*_alt$/ || $1 ~ /^HLA/){print $1}' \
       > "${SAMPLE}.mhc_alt_contigs.txt"
 
     # Extract read names in MHC region (GRCh38 chr6:28510120-33480577) + alt contigs
 
     samtools view \
-      -T ref.fa \
+      -T "~{ref_fasta}" \
       -F 0x900 \
-      sample.cram \
+      "~{cram}" \
       chr6:28510120-33480577 \
       $(cat "${SAMPLE}.mhc_alt_contigs.txt" || true) \
         | cut -f 1 | sort -u > "${SAMPLE}.mhc_qnames.txt"
@@ -45,10 +38,10 @@ task extract_mhc_with_mates {
     # Extract unmapped read names
 
     samtools view \
-      -T ref.fa \
+      -T "~{ref_fasta}" \
       -F 0x900 \
       -f 0xC \
-      sample.cram \
+      "~{cram}" \
         | cut -f 1 | sort -u > "${SAMPLE}.unmap_qnames.txt"
 
     # Merge read names in a file
@@ -58,9 +51,9 @@ task extract_mhc_with_mates {
     # Extract reads (+mates) and create .bam files
 
     samtools view \
-      -T ref.fa \
+      -T "~{ref_fasta}" \
       -b -F 0x900 -N "${SAMPLE}.qnames.txt" \
-      sample.cram \
+      "~{cram}" \
         > "${SAMPLE}.mhc_with_mates.bam"
 
     # Indexing
