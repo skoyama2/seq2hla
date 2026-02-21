@@ -28,7 +28,7 @@ task extract_mhc_with_mates {
 
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
 
-    samtools idxstats --reference ref.fa sample.cram \
+    samtools idxstats sample.cram \
       | awk '$3>0 && ($1 ~ /^chr6_.*_alt$/ || $1 ~ /^6_.*_alt$/ || $1 ~ /^HLA/){print $1}' \
       > "${SAMPLE}.mhc_alt_contigs.txt"
 
@@ -75,7 +75,7 @@ task extract_mhc_with_mates {
   }
 
   runtime {
-    docker: "biocontainers/samtools:v1.7.0_cv4"
+    docker: samtools_docker
     cpu: 2
     memory: "8 GB"
     disks: "local-disk 200 HDD"
