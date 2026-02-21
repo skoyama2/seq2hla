@@ -21,7 +21,7 @@ workflow main {
   }
 
   output {
-    File mhc_bam = extract_mhc_with_mates.bam
-    File mhc_bai = extract_mhc_with_mates.bai
+    File mhc_bam = mhc.extract_mhc_with_mates.bam
+    File mhc_bai = mhc.extract_mhc_with_mates.bai
   }
 }
