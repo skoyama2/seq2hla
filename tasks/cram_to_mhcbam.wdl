@@ -75,7 +75,7 @@ task extract_mhc_with_mates {
   }
 
   runtime {
-    docker: "quay.io/biocontainers/samtools"
+    docker: "biocontainers/samtools:v1.7.0_cv4"
     cpu: 2
     memory: "8 GB"
     disks: "local-disk 200 HDD"
