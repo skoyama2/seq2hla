@@ -115,12 +115,3 @@ Input: CRAM + CRAI + Reference (GRCh38)
 Output: mhc_with_mates.bam + .bam.bai
 ```
 
----
-
-## Compatibility Notes
-
-### Terra-Specific
-
-**Relative imports require ZIP upload**
-
-Relative imports (`../tasks/...`) are only supported when the workflow is uploaded to Terra as a ZIP archive preserving the directory structure. Uploading `main.wdl` alone will fail.
