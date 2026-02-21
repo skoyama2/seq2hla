@@ -2,7 +2,7 @@ version: 1.2
 workflows:
   - name: seq2hla
     subclass: WDL
-    primaryDescriptorPath: /extract_hla.wdl
+    primaryDescriptorPath: /workflows/main.wdl
     testParameterFiles:
       - /inputs/inputs.json
     readMePath: /README.md
