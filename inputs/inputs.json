@@ -2,6 +2,5 @@
   "main.cram": "gs://PATH_TO/sample.cram",
   "main.crai": "gs://PATH_TO/sample.cram.crai",
   "main.ref_fasta": "gs://PATH_TO/Homo_sapiens_assembly38.fasta",
-  "main.ref_fasta_fai": "gs://PATH_TO/Homo_sapiens_assembly38.fasta.fai",
-  "main.ref_dict": "gs://PATH_TO/Homo_sapiens_assembly38.dict"
+  "main.ref_fasta_fai": "gs://PATH_TO/Homo_sapiens_assembly38.fasta.fai"
 }
