@@ -20,16 +20,20 @@ task extract_mhc_with_mates {
 
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
 
-    samtools idxstats "~{cram}##idx##~{crai}" \
-      | awk '$3>0 && ($1 ~ /^chr6_.*_alt$/ || $1 ~ /^6_.*_alt$/ || $1 ~ /^HLA/){print $1}' \
+    # Get MHC alt contig names from CRAM header (no index required)
+    samtools view -H "~{cram}" \
+      | awk '/^@SQ/ && ($2 ~ /SN:chr6_.*_alt$/ || $2 ~ /SN:6_.*_alt$/ || $2 ~ /SN:HLA/) {
+          sub(/SN:/, "", $2); print $2
+        }' \
       > "${SAMPLE}.mhc_alt_contigs.txt"
 
     # Extract read names in MHC region (GRCh38 chr6:28510120-33480577) + alt contigs
 
     samtools view \
       -T "~{ref_fasta}" \
+      -X "~{crai}" \
       -F 0x900 \
-      "~{cram}##idx##~{crai}" \
+      "~{cram}" \
       chr6:28510120-33480577 \
       $(cat "${SAMPLE}.mhc_alt_contigs.txt" || true) \
         | cut -f 1 | sort -u > "${SAMPLE}.mhc_qnames.txt"
@@ -38,9 +42,10 @@ task extract_mhc_with_mates {
 
     samtools view \
       -T "~{ref_fasta}" \
+      -X "~{crai}" \
       -F 0x900 \
       -f 0xC \
-      "~{cram}##idx##~{crai}" \
+      "~{cram}" \
         | cut -f 1 | sort -u > "${SAMPLE}.unmap_qnames.txt"
 
     # Merge read names in a file
@@ -51,8 +56,9 @@ task extract_mhc_with_mates {
 
     samtools view \
       -T "~{ref_fasta}" \
+      -X "~{crai}" \
       -b -F 0x900 -N "${SAMPLE}.qnames.txt" \
-      "~{cram}##idx##~{crai}" \
+      "~{cram}" \
         > "${SAMPLE}.mhc_with_mates.bam"
 
     # Indexing
