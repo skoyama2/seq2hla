@@ -24,7 +24,7 @@ task extract_mhc_with_mates {
     ln -sf "~{ref_fasta_fai}" ref.fa.fai
     ln -sf "~{ref_dict}"      ref.dict
 
-    SAMPLE=$(basename "sample.cram" | sed 's/\.cram$//')
+    SAMPLE=$(basename "~{cram}" | sed 's/\.cram$//')
 
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
 
