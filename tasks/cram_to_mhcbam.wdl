@@ -10,7 +10,7 @@ task extract_mhc_with_mates {
     File ref_fasta_fai
 
     # Docker with samtools
-    String samtools_docker = "biocontainers/samtools:v1.19.2-1-deb_cv1"
+    String samtools_docker = "quay.io/biocontainers/samtools:v1.19.2-1-deb_cv1"
   }
 
   command <<<

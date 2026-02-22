@@ -8,7 +8,7 @@ workflow main {
     File crai
     File ref_fasta
     File ref_fasta_fai
-    String samtools_docker = "biocontainers/samtools:v1.19.2-1-deb_cv1"
+    String samtools_docker = "quay.io/biocontainers/samtools:v1.19.2-1-deb_cv1"
   }
 
   call mhc.extract_mhc_with_mates {
