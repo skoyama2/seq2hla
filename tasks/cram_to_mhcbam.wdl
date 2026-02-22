@@ -10,7 +10,7 @@ task extract_mhc_with_mates {
     File ref_fasta_fai
 
     # Docker with samtools
-    String samtools_docker = "quay.io/biocontainers/samtools:v1.19.2-1-deb_cv1"
+    String samtools_docker = "biocontainers/samtools:v1.9-4-deb_cv1"
   }
 
   command <<<
@@ -18,10 +18,15 @@ task extract_mhc_with_mates {
 
     SAMPLE=$(basename "~{cram}" | sed 's/\.cram$//')
 
+    # Localize CRAI to disk and symlink CRAM next to it so samtools can find the index
+    cp "~{crai}" "${SAMPLE}.cram.crai"
+    ln -sf "~{cram}" "${SAMPLE}.cram"
+    LOCAL_CRAM="${SAMPLE}.cram"
+
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
 
     # Get MHC alt contig names from CRAM header (no index required)
-    samtools view -H "~{cram}" \
+    samtools view -H "$LOCAL_CRAM" \
       | awk '/^@SQ/ && ($2 ~ /SN:chr6_.*_alt$/ || $2 ~ /SN:6_.*_alt$/ || $2 ~ /SN:HLA/) {
           sub(/SN:/, "", $2); print $2
         }' \
@@ -31,9 +36,8 @@ task extract_mhc_with_mates {
 
     samtools view \
       -T "~{ref_fasta}" \
-      -X "~{crai}" \
       -F 0x900 \
-      "~{cram}" \
+      "$LOCAL_CRAM" \
       chr6:28510120-33480577 \
       $(cat "${SAMPLE}.mhc_alt_contigs.txt" || true) \
         | cut -f 1 | sort -u > "${SAMPLE}.mhc_qnames.txt"
@@ -42,10 +46,9 @@ task extract_mhc_with_mates {
 
     samtools view \
       -T "~{ref_fasta}" \
-      -X "~{crai}" \
       -F 0x900 \
       -f 0xC \
-      "~{cram}" \
+      "$LOCAL_CRAM" \
         | cut -f 1 | sort -u > "${SAMPLE}.unmap_qnames.txt"
 
     # Merge read names in a file
@@ -53,12 +56,14 @@ task extract_mhc_with_mates {
     cat "${SAMPLE}.mhc_qnames.txt" "${SAMPLE}.unmap_qnames.txt" > "${SAMPLE}.qnames.txt"
 
     # Extract reads (+mates) and create .bam files
+    # Filter by read name using awk (samtools -N flag not available in v1.9)
 
     samtools view \
       -T "~{ref_fasta}" \
-      -X "~{crai}" \
-      -b -F 0x900 -N "${SAMPLE}.qnames.txt" \
-      "~{cram}" \
+      -F 0x900 \
+      "$LOCAL_CRAM" \
+        | awk 'NR==FNR { q[$1]=1; next } $1 in q' "${SAMPLE}.qnames.txt" - \
+        | samtools view -bS -T "~{ref_fasta}" - \
         > "${SAMPLE}.mhc_with_mates.bam"
 
     # Indexing
