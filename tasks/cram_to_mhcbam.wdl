@@ -18,9 +18,9 @@ task extract_mhc_with_mates {
 
     SAMPLE=$(basename "~{cram}" | sed 's/\.cram$//')
 
-    # Localize CRAI to disk and symlink CRAM next to it so samtools can find the index
-    cp "~{crai}" "${SAMPLE}.cram.crai"
+    # Symlink CRAM and CRAI into working directory so samtools can find the index
     ln -sf "~{cram}" "${SAMPLE}.cram"
+    ln -sf "~{crai}" "${SAMPLE}.cram.crai"
     LOCAL_CRAM="${SAMPLE}.cram"
 
     # Extract contig names in MHC region + alt contigs (chr6_*_alt / 6_*_alt / HLA*) with mapped read
